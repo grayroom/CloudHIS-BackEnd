@@ -9,3 +9,8 @@ pip install -r requirements.txt
 ```
 python3 -m venv {/path/to/new/virtual/environment}
 ```
+
+## Run development server
+```
+python manage.py runserver
+```
