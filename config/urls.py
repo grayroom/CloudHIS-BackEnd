@@ -19,8 +19,8 @@ from api import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('index/', views.HomeView.as_view(), name='home'),
-    
+    path('', views.HomeView.as_view(), name='home'),
+
     path('templates/', views.templates_list, name='templates_list'),
     path('templates/<int:id>/', views.templates_detail, name='templates_detail'),
 ]

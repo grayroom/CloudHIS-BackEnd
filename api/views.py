@@ -8,53 +8,53 @@ from api.serializers import TemplatesSerializer
 
 
 class HomeView(TemplateView):
-  template_name = 'index.html'
+    template_name = 'index.html'
 
 
 @api_view(['GET', 'PUT', 'POST'])
 def templates_list(request, format=None):
-  if request.method == 'GET':
-    templates = Template.objects.all()
-    serializer = TemplatesSerializer(templates, many=True)
-    return Response(serializer.data)
-  
-  elif request.method == 'POST':
-    request.data['is_directory'] = False
-    request.data['file_name'] = 'test_title'
-    request.data['file_content'] = request.data.get('content')
-    serializer = TemplatesSerializer(data=request.data)
-    if serializer.is_valid():
-      serializer.save()
-      return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'GET':
+        templates = Template.objects.all()
+        serializer = TemplatesSerializer(templates, many=True)
+        return Response(serializer.data)
 
-  elif request.method == 'PUT':
-    serializer = TemplatesSerializer(data=request.data)
-    if serializer.is_valid():
-      serializer.save()
-      return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'POST':
+        request.data['is_directory'] = False
+        request.data['file_name'] = request.data.get('title')
+        request.data['file_content'] = request.data.get('content')
+        serializer = TemplatesSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'PUT':
+        serializer = TemplatesSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def templates_detail(request, id, format=None):
 
-  try:
-    templates = Template.objects.get(id=id)
-  except Template.DoesNotExist:
-    return Response(status=status.HTTP_404_NOT_FOUND)
+    try:
+        templates = Template.objects.get(id=id)
+    except Template.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
-  if request.method == 'GET':
-    serializer = TemplatesSerializer(templates)
-    return Response(serializer.data)
+    if request.method == 'GET':
+        serializer = TemplatesSerializer(templates)
+        return Response(serializer.data)
 
-  elif request.method == 'PUT':    
-    serializer = TemplatesSerializer(templates, data=request.data)
-    if serializer.is_valid():
-      serializer.save()
-      return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'PUT':
+        serializer = TemplatesSerializer(templates, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-  elif request.method == 'DELETE':
-    templates.delete()
-    return Response(status=status.HTTP_204_NO_CONTENT)
-
+    elif request.method == 'DELETE':
+        templates.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

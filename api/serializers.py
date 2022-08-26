@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.db import models
 from api.models import Template
 
+
 class TemplatesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Template
