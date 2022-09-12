@@ -1,9 +1,9 @@
-from django.shortcuts import render
 from django.views.generic import TemplateView
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from api.models import Template
+from api.permissions import IsAuthorizedUser
 from api.serializers import TemplatesSerializer
 
 
@@ -12,7 +12,8 @@ class HomeView(TemplateView):
 
 
 @api_view(['GET', 'PUT', 'POST'])
-def templates_list(request, format=None):
+@permission_classes([IsAuthorizedUser])
+def templates_list(request):
     if request.method == 'GET':
         templates = Template.objects.all()
         serializer = TemplatesSerializer(templates, many=True)
@@ -37,7 +38,8 @@ def templates_list(request, format=None):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-def templates_detail(request, id, format=None):
+@permission_classes([IsAuthorizedUser])
+def templates_detail(request, id):
 
     try:
         templates = Template.objects.get(id=id)
