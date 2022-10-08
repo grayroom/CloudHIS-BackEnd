@@ -36,13 +36,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'api',
+    'rest_framework_simplejwt',
     'webpack_loader',
     'rest_framework',
     'corsheaders'
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -54,11 +54,12 @@ MIDDLEWARE = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # FIXME: 별도의 authentication class를 명시해야 할 것 같은데..
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.BasePermission',
+        # 'rest_framework.permissions.BasePermission',
     )
 }
 
@@ -67,7 +68,6 @@ REST_USE_JWT = True
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
     'USER_ID_FIELD': 'id',
@@ -112,6 +112,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+
 # NOTE: sensitive DB secret from evironment variables
 DATABASES = {
     'default': {

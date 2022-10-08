@@ -14,7 +14,8 @@ class IsAuthorizedUser(permissions.BasePermission):
             return handle_jwt_access_token(request)
         else:
             access_token = request.headers.get("Authorization", None)
-            payload = jwt.decode(access_token, settings.SIMPLE_JWT['VERIFYING_KEY'],
+            payload = jwt.decode(access_token,
+                                 settings.SIMPLE_JWT['VERIFYING_KEY'],
                                  algorithms=[settings.SIMPLE_JWT['ALGORITHM']])
             return obj.author == payload.username
 
@@ -22,7 +23,8 @@ class IsAuthorizedUser(permissions.BasePermission):
 def handle_jwt_access_token(request):
     access_token = request.headers.get("Authorization", None)
     try:
-        payload = jwt.decode(access_token, settings.SIMPLE_JWT['VERIFYING_KEY'],
+        payload = jwt.decode(access_token,
+                             settings.SIMPLE_JWT['VERIFYING_KEY'],
                              algorithms=[settings.SIMPLE_JWT['ALGORITHM']])
         role = payload['authority']
     except (jwt.InvalidTokenError, jwt.DecodeError) as exc:
