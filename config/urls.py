@@ -6,14 +6,22 @@ urlpatterns = [
     path('emr/api/templates/<int:id>/', views.templates_detail,
          name='templates_detail'),
 
-    path('emr/api/symptom/list', views.SymptomsView.as_view(),
+    path('emr/api/symptom/list/', views.SymptomsView.as_view(),
          name='symptoms_list'),
-    path('emr/api/prescription/list', views.PrescriptionsView.as_view(),
+
+    path('emr/api/prescription/list/', views.PrescriptionsView.as_view(),
          name='prescriptions_list'),
-    path('emr/api/emr/list', views.DiagnosisView.as_view(),
+
+    path('emr/api/emr/list/', views.DiagnosisView.as_view(),
          name='diagnosis_list'),
-    path('emr/api/appointment/list', views.AppointmentsView.as_view(),
+
+    path('emr/api/appointment/list/', views.AppointmentsView.as_view(),
          name='appointments_list'),
+    path('emr/api/appointment/', views.AppointmentView.as_view(),
+         name='appointment'),
+
+    path('emr/api/patientInCharge/list/', views.PatientInChargeView.as_view(),
+         name='patientInCharge_list'),
 
     re_path(r'^emr/', views.HomeView.as_view(), name='home'),
 ]

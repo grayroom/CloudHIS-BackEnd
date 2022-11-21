@@ -1,5 +1,7 @@
 from django.shortcuts import get_list_or_404
 from django.views.generic import TemplateView
+from django.utils.datetime_safe import datetime
+from django.utils.dateparse import parse_datetime
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -8,7 +10,8 @@ from rest_framework.views import APIView
 from api.models import Template, Symptom, Diagnosis, Prescript, Appointment
 from api.permissions import IsAuthorizedUser
 from api.serializers import TemplatesSerializer, SymptomSerializer, \
-    DiagnosisSerializer, PrescriptSerializer, AppointmentSerializer
+    DiagnosisSerializer, PrescriptSerializer, AppointmentSerializer, \
+    PatientSerializer, DoctorSerializer
 
 
 class HomeView(TemplateView):
@@ -121,12 +124,46 @@ class AppointmentsView(APIView):
 
     def post(self, request):
         appointment_list = get_list_or_404(Appointment,
-                                           patient_idx=request.data[
-                                               'patient_idx'],
-                                           begin_at=request.data['begin_at'])
+                                           doctor_id=request.data[
+                                               'doctor_idx'])
+
+        target_date = parse_datetime(request.data['begin_at'])
+
         serializer = self.appointment_serializer_class(
-            appointment_list.filter(patient_idx=request.data['patient_idx']),
+            appointment_list.filter(patient_idx=request.data['patient_idx'],
+                                    begin_at__year=target_date.year,
+                                    begin_at__month=target_date.month,
+                                    begin_at__day=target_date.day),
             many=True)
         serializer.is_valid()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class PatientInChargeView(APIView):
+    permission_classes([IsAuthorizedUser])
+    patient_in_charge_serializer_class = PatientSerializer
+
+    def post(self, request):
+        patient_list = get_list_or_404(Patient,
+                                       doctor_id=request.data[
+                                           'doctor_idx'])
+        serializer = PatientSerializer(
+            patient_list.filter(doctor_id=request.data['doctor_idx']),
+            many=True)
+        serializer.is_valid()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AppointmentView(APIView):
+    permission_classes([IsAuthorizedUser])
+    appointment_serializer_class = AppointmentSerializer
+
+    def post(self, request):
+        appo_serializer = self.appointment_serializer_class(data=request.data)
+
+        if appo_serializer.is_valid():
+            appo_serializer.save()
+            return Response(appo_serializer.data,
+                            status=status.HTTP_201_CREATED)

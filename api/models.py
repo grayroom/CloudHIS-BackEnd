@@ -1,9 +1,6 @@
 from django.db import models
 
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import User as _User
-
-from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Template(models.Model):
@@ -23,10 +20,10 @@ class Appointment(models.Model):
     id = models.BigAutoField(help_text="appointment ID", primary_key=True)
     patient_id = models.ForeignKey(
         "User", on_delete=models.CASCADE, null=True, blank=True,
-        db_column="patient_id", related_name="patient")
+        db_column="patient_id", related_name="patient_ref_id")
     doctor_id = models.ForeignKey(
         "User", on_delete=models.CASCADE, null=True, blank=True,
-        db_column="doctor_id", related_name="doctor")
+        db_column="doctor_id", related_name="doctor_ref_id")
     begin_at = models.DateTimeField()
     category = models.CharField(max_length=50)  # 진료, 검사, 수술, 상담
     status = models.CharField(max_length=50)
@@ -95,55 +92,87 @@ class Prescript(models.Model):
     updated_time = models.DateTimeField(auto_now=True)
 
 
-class UserManager(BaseUserManager):
+class AuthUser(models.Model):
+    password = models.CharField(max_length=128)
+    last_login = models.DateTimeField(blank=True, null=True)
+    is_superuser = models.BooleanField()
+    username = models.CharField(unique=True, max_length=150)
+    first_name = models.CharField(max_length=150)
+    last_name = models.CharField(max_length=150)
+    email = models.CharField(max_length=254)
+    is_staff = models.BooleanField()
+    is_active = models.BooleanField()
+    date_joined = models.DateTimeField()
 
-    def create_user(self, username, name, password, email, address, subject,
-                    phone_number):
-        if not username:
-            raise ValueError('Users must have an username')
-
-        user = self.model(
-            username=username,
-            name=name,
-            email=email,
-            address=address,
-            subject=subject,
-            phone_number=phone_number
-        )
-        # NOTE: 왜 얘만 따로 뻈지?
-        user.set_password(password)
-
-        user.save(using=self._db)
-        return user
+    class Meta:
+        managed = False
+        db_table = 'auth_user'
 
 
-class User(_User):
-    # 기본정보
+class User(models.Model):
+    user_ptr = models.OneToOneField(AuthUser, models.DO_NOTHING, primary_key=True)
     name = models.CharField(max_length=50)
     address = models.CharField(max_length=100)
-    join_date = models.DateTimeField(auto_now_add=True)
-    phone_number = PhoneNumberField()
-    # 소속을 나타내는 칼럼들
+    join_date = models.DateTimeField()
+    phone_number = models.CharField(max_length=128)
+    authority = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'auths_user'
+
+# NOTE: 이하는 auth 에서 구현한 USER에 대한것
+class Doctor(User):
+    user_idx = models.OneToOneField(User, on_delete=models.CASCADE,
+                                    parent_link=True, primary_key=True)
     subject = models.CharField(max_length=50)
-    authority = models.IntegerField(default=0)  # 0: 외부, 1: 의사, 2: 관리자
-
-    objects = UserManager()
-
-    REQUIRED_FIELDS = ['alias']
+    room = models.CharField(max_length=50, null=True, default=None)
+    dept_idx = models.IntegerField(null=True, default=None)
+    sup_idx = models.IntegerField(null=True, default=None)
 
     def __str__(self):
         return self.username
 
-    def create_user(self, username, password, name, email, address, subject,
-                    phone_number):
-        user = User(
+    def create_doctor(self, username, password, name, email, address,
+                      phone_number, subject, room, dept_idx, sup_idx):
+        user = Doctor(
             username=username,
             password=password,
             name=name,
             email=email,
             address=address,
+            phone_number=phone_number,
             subject=subject,
-            phone_number=phone_number
+            room=room,
+            dept_idx=dept_idx,
+            sup_idx=sup_idx
+        )
+        user.save()
+        return user
+
+
+class Patient(User):
+    user_idx = models.OneToOneField(User, on_delete=models.CASCADE,
+                                    parent_link=True, primary_key=True)
+    doc_idx = models.IntegerField(default=0)
+    is_admission = models.BooleanField(default=False)
+    room = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.username
+
+    def create_patient(self, username, password, name, email, address,
+                       phone_number, doc_idx, is_admission, room):
+        user = Patient(
+            username=username,
+            password=password,
+            name=name,
+            email=email,
+            address=address,
+            phone_number=phone_number,
+            doc_idx=doc_idx,
+            is_admission=is_admission,
+            room=room
         )
         user.save()
         return user
