@@ -1,5 +1,5 @@
 from django.urls import path, re_path
-from api import views
+from api import views, kafkaAdapters
 
 urlpatterns = [
     path('emr/api/templates/', views.templates_list, name='templates_list'),
@@ -23,5 +23,9 @@ urlpatterns = [
     path('emr/api/patientInCharge/list/', views.PatientInChargeView.as_view(),
          name='patientInCharge_list'),
 
+    path('emr/api/issueEMR/', kafkaAdapters.IssueMessage.as_view(),
+         name='issueEMR'),
+
+    # Vue.js routing
     re_path(r'^emr/', views.HomeView.as_view(), name='home'),
 ]
