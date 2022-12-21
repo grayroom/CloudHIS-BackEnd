@@ -7,7 +7,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.models import Template, Symptom, Diagnosis, Prescript, Appointment
+from api.models import Template, Symptom, Diagnosis, Prescript, Appointment, \
+    Patient
 from api.permissions import IsAuthorizedUser
 from api.serializers import TemplatesSerializer, SymptomSerializer, \
     DiagnosisSerializer, PrescriptSerializer, AppointmentSerializer, \

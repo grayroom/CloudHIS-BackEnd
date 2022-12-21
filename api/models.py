@@ -32,7 +32,7 @@ class Appointment(models.Model):
 
 
 class Diagnosis(models.Model):
-    id = models.BigAutoField(help_text="diagnosis ID", primary_key=True)
+    id = models.BigIntegerField(help_text="diagnosis ID", primary_key=True)
     appointment_id = models.ForeignKey(
         "Appointment", on_delete=models.CASCADE, null=True, blank=True,
         db_column="appointment_id")
@@ -42,10 +42,11 @@ class Diagnosis(models.Model):
     doctor_id = models.ForeignKey(
         "User", on_delete=models.CASCADE, null=True, blank=True,
         db_column="doctor_id", related_name="diagonsis_publisher")
-    begin_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    diag_type = models.CharField(max_length=50)
-    comment = models.CharField(max_length=500)
+    begin_time = models.DateTimeField(null=True, blank=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    diag_type = models.CharField(max_length=50, null=True, blank=True)
+    comment = models.CharField(max_length=500, null=True, blank=True)
+    named_entity = models.JSONField(default=dict, null=True, blank=True)
     created_time = models.DateTimeField(auto_now_add=True)
     updated_time = models.DateTimeField(auto_now=True)
 
