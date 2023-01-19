@@ -37,7 +37,7 @@ class IssueMessage(APIView):
                                 '\>\/\?])*?</p>)')
     reg = re.compile('(<.*?>)')
 
-    producer = KafkaProducer(bootstrap_servers=[env("KAFKA_HOST") + ":" + env("KAFKA_PORT")],
+    producer = KafkaProducer(bootstrap_servers=[str(env("KAFKA_HOST")) + ":" + str(env("KAFKA_PORT"))],
                              value_serializer=lambda x: json.dumps(x)
                              .encode('utf-8'))
 
