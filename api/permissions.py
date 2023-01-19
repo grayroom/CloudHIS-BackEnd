@@ -29,7 +29,7 @@ def handle_jwt_access_token(request):
         role = payload['authority']
     except (jwt.InvalidTokenError, jwt.DecodeError) as exc:
         raise TokenError(str(exc))
-
+    
     if role > Authority.NO_AUTHORITY.value:
         return True
     else:
