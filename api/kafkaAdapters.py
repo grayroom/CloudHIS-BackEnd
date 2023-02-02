@@ -37,11 +37,11 @@ class IssueMessage(APIView):
                                 '\>\/\?])*?</p>)')
     reg = re.compile('(<.*?>)')
 
-    producer = KafkaProducer(bootstrap_servers=[str(env("KAFKA_HOST")) + ":" + str(env("KAFKA_PORT"))],
-                             value_serializer=lambda x: json.dumps(x)
-                             .encode('utf-8'))
-
     def post(self, request):
+        producer = KafkaProducer(bootstrap_servers=[str(env("KAFKA_HOST")) + ":" + str(env("KAFKA_PORT"))],
+                                 value_serializer=lambda x: json.dumps(x)
+                                 .encode('utf-8'))
+
         target_emr_array = [
             {
                 'uuid': int(uuid.uuid4().hex[0:15], 16),
@@ -88,7 +88,7 @@ class IssueMessage(APIView):
             else:
                 emr['updated_time'] = self.ner_serializer.Meta.model.objects.get(
                     id=emr['uuid']).updated_time
-                self.producer.send('hello.kafka', {
+                producer.send('hello.kafka', {
                     'emr': emr['token_list'],
                     'uuid': emr['uuid']
                 })
