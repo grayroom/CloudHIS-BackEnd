@@ -1,23 +1,33 @@
-"""config URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-from django.contrib import admin
-from django.urls import path
-from api import views
+from django.urls import path, re_path
+from api import views, kafkaAdapters
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', views.HomeView.as_view(), name='home'),
+    #     path('emr/api/templates/', views.templates_list, name='templates_list'),
+    #     path('emr/api/templates/<int:id>/', views.templates_detail, name='templates_detail'),
+
+    path('emr/api/prescription/list/', views.PrescriptionsView.as_view(),
+         name='prescriptions_list'),
+    path('emr/api/prescript/', views.PrescriptionView.as_view(),
+         name='prescription'),
+
+    path('emr/api/emr/list/', views.PatientDiagnosisView.as_view(),
+         name='diagnosis_list'),
+
+    # NOTE: 이미 생성된 appointment를 가져오는 API
+    path('emr/api/appointment/list/', views.AppointmentsView.as_view(),
+         name='appointments_list'),
+    # NOTE: 단일 appointment에 대한 API
+    path('emr/api/appointment/', views.AppointmentView.as_view(),
+         name='appointment'),
+
+    path('emr/api/symptom/list/', views.PatientSymptomView.as_view(),
+         name='patient_symptom_list'),
+    path('emr/api/prescript/list/', views.PatientPrescriptView.as_view(),
+         name='patient_prescript_list'),
+
+    path('emr/api/issueEMR/', kafkaAdapters.IssueMessage.as_view(),
+         name='issueEMR'),
+
+    # Vue.js routing
+    re_path(r'^emr/', views.HomeView.as_view(), name='home'),
 ]
