@@ -1,5 +1,6 @@
 from django.urls import path, re_path
 from api import views, kafkaAdapters
+from django.views.generic.base import RedirectView
 
 urlpatterns = [
     #     path('emr/api/templates/', views.templates_list, name='templates_list'),
