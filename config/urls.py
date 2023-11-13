@@ -30,4 +30,5 @@ urlpatterns = [
 
     # Vue.js routing
     re_path(r'^emr/', views.HomeView.as_view(), name='home'),
+    path('', RedirectView.as_view(url='/emr/')),
 ]
